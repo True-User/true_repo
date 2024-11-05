@@ -60,16 +60,25 @@ def main() -> None:
             tk_list.delete(0, tk.END)
             for suggestion in suggestions:
                 tk_list.insert(tk.END, suggestion)
-
-        def load_tk_list_realtime():
+            # nonlocal suggestions
+            # tk_list.delete(0, tk.END)
+            # for suggestion in get_suggestions(pyfile, None):
+                # tk_list.insert(tk.END, suggestion)
+            # load_list()
+        
+        def real():
             nonlocal previous_pyfile_modified_time
             nonlocal suggestions
-            current_pyfile_modified_time = getmtime(pyfile)
-            if current_pyfile_modified_time != previous_pyfile_modified_time:
-                previous_pyfile_modified_time = current_pyfile_modified_time
-                suggestions = get_suggestions(pyfile=pyfile, interpreter_path=interpreter_path)
-                load_list()
-            window.after(3, load_tk_list_realtime)
+            def load_tk_list_realtime():
+                nonlocal previous_pyfile_modified_time
+                nonlocal suggestions
+                current_pyfile_modified_time = getmtime(pyfile)
+                if current_pyfile_modified_time != previous_pyfile_modified_time:
+                    previous_pyfile_modified_time = current_pyfile_modified_time
+                    suggestions = get_suggestions(pyfile=pyfile, interpreter_path=interpreter_path)
+                    load_list()
+                window.after(3, load_tk_list_realtime)
+            load_tk_list_realtime()
 
         def show_selected_item_details(event) -> None:
             index = tk_list.curselection()
@@ -111,7 +120,7 @@ def main() -> None:
 
         btn_frame = tk.Frame(window)
         btn_frame.pack()
-        for btn_text, btn_command, btn_column in [['start', load_tk_list_realtime, 0], ['down', lambda: list_scroll('down'), 1], ['up', lambda: list_scroll('up'), 2], ['left', lambda: list_scroll('left'), 3], ['right', lambda: list_scroll('right'), 4]]:
+        for btn_text, btn_command, btn_column in [['start', load_list, 0], ['down', lambda: list_scroll('down'), 1], ['up', lambda: list_scroll('up'), 2], ['left', lambda: list_scroll('left'), 3], ['right', lambda: list_scroll('right'), 4]]:
             create_button(btn_frame=btn_frame, text=btn_text, command=btn_command, column=btn_column)
         tk_list = tk.Listbox(window, height=22, width=40)
         tk_list.pack(pady=(0, 20))
